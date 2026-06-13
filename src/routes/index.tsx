@@ -454,7 +454,7 @@ function Index() {
             <span className="font-jp text-crimson text-sm tracking-widest">— 連絡 / contact</span>
             <h2 className="font-display text-5xl sm:text-6xl md:text-[10rem] leading-[0.85] mt-6">
               Let's build<br />
-              <span className="text-crimson italic font-jp">something</span><br />
+              <span className="text-crimson">something</span><br />
               unforgettable.
             </h2>
 
