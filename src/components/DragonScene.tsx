@@ -91,6 +91,9 @@ function Dragon({ progress }: { progress: { current: number } }) {
             metalness: 0.25,
             roughness: 0.55,
             envMapIntensity: 1.1,
+            // Wings are thin single-sided membranes — render both faces so
+            // they don't vanish (leaving only the bones) when seen from below.
+            side: THREE.DoubleSide,
           });
           (slim as THREE.MeshStandardMaterial & { __slim?: boolean }).__slim = true;
           mesh.material = slim;
