@@ -3,6 +3,10 @@ import { useEffect, useRef, useState } from "react";
 import { motion } from "framer-motion";
 import gsap from "gsap";
 import { ScrollTrigger } from "gsap/ScrollTrigger";
+// Imported before DragonScene so drei's loading-manager patch is installed
+// before DragonScene's module-scope useGLTF.preload fires — otherwise the
+// big dragon GLB download wouldn't be tracked by the preloader's progress.
+import { useProgress } from "@react-three/drei";
 import { DragonScene } from "@/components/DragonScene";
 
 export const Route = createFileRoute("/")({
@@ -26,6 +30,109 @@ export const Route = createFileRoute("/")({
 
 if (typeof window !== "undefined") {
   gsap.registerPlugin(ScrollTrigger);
+}
+
+/**
+ * Full-screen branded loading screen. Holds the site behind it until every
+ * asset tracked by THREE's loading manager (the ~20MB dragon GLB + the HDR
+ * environment) has finished, then fades out to reveal a fully preloaded page.
+ */
+function Preloader() {
+  const { active, loaded, total } = useProgress();
+  const [shown, setShown] = useState(0);
+  const [hidden, setHidden] = useState(false);
+  const [removed, setRemoved] = useState(false);
+  const realRef = useRef(0);
+
+  // Real fraction of assets the loading manager has finished (item count).
+  realRef.current = total > 0 ? (loaded / total) * 100 : 0;
+
+  // Everything that registered with the manager has finished loading.
+  const ready = total > 0 && loaded >= total && !active;
+
+  // The dragon GLB is one huge item, so item-count progress jumps in big
+  // steps. Ease a synthetic bar toward ~90% while loading so it never looks
+  // frozen at 0%, then snap to 100% once everything is ready.
+  useEffect(() => {
+    if (ready) {
+      setShown(100);
+      return;
+    }
+    const id = setInterval(() => {
+      setShown((s) =>
+        Math.max(s, realRef.current, Math.min(90, s + (90 - s) * 0.1))
+      );
+    }, 280);
+    return () => clearInterval(id);
+  }, [ready]);
+
+  // Fade out shortly after ready. Debounced via `ready` so a late-registering
+  // asset (e.g. the HDR environment) cancels a premature hide.
+  useEffect(() => {
+    if (!ready) return;
+    const t = setTimeout(() => setHidden(true), 650);
+    return () => clearTimeout(t);
+  }, [ready]);
+
+  // Safety net: never trap the visitor behind the loader if an asset stalls.
+  useEffect(() => {
+    const t = setTimeout(() => setHidden(true), 15000);
+    return () => clearTimeout(t);
+  }, []);
+
+  // After the fade, fully unmount the overlay so it can never linger over the
+  // page (belt-and-suspenders in case an opacity transition is ever flaky).
+  useEffect(() => {
+    if (!hidden) return;
+    const t = setTimeout(() => setRemoved(true), 800);
+    return () => clearTimeout(t);
+  }, [hidden]);
+
+  if (removed) return null;
+
+  // Lock scroll while the loader covers the page.
+  useEffect(() => {
+    if (hidden) return;
+    const prev = document.body.style.overflow;
+    document.body.style.overflow = "hidden";
+    return () => {
+      document.body.style.overflow = prev;
+    };
+  }, [hidden]);
+
+  return (
+    <div
+      aria-hidden={hidden}
+      className={`fixed inset-0 z-[100] flex flex-col items-center justify-center ${
+        hidden ? "pointer-events-none" : ""
+      }`}
+      style={{
+        background: "var(--gradient-paper)",
+        opacity: hidden ? 0 : 1,
+        transition: "opacity 0.7s ease",
+      }}
+    >
+      <div className="flex items-center gap-3">
+        <span className="h-2 w-2 rounded-full bg-crimson animate-pulse" />
+        <span className="font-display text-4xl md:text-6xl tracking-[0.25em] text-ink">
+          FAST/TECH
+        </span>
+      </div>
+
+      <span className="font-jp text-base text-ink/50 mt-4 mb-10">速い・技術</span>
+
+      <div className="h-px w-56 md:w-72 overflow-hidden bg-ink/15">
+        <div
+          className="h-full bg-crimson transition-[width] duration-300 ease-out"
+          style={{ width: `${shown}%` }}
+        />
+      </div>
+
+      <span className="mt-4 text-[10px] uppercase tracking-[0.4em] text-ink/50">
+        {Math.round(shown)}% · loading experience
+      </span>
+    </div>
+  );
 }
 
 function Index() {
@@ -100,6 +207,9 @@ function Index() {
 
   return (
     <div className="relative">
+      {/* Loading screen — holds until the dragon + environment are ready */}
+      <Preloader />
+
       {/* Fixed 3D background */}
       <div className="pointer-events-none fixed inset-0 z-10">
         {mounted && <DragonScene progress={progressRef} />}
