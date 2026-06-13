@@ -158,7 +158,12 @@ function Dragon({ progress }: { progress: { current: number } }) {
   );
 }
 
-useGLTF.preload(MODEL_URL);
+// Module-scope preload kicks off the GLB fetch as soon as this module is
+// evaluated. Guard for SSR: useGLTF.preload would call fetch() with a
+// relative URL on the server, which throws (Node fetch needs an absolute URL).
+if (typeof window !== "undefined") {
+  useGLTF.preload(MODEL_URL);
+}
 
 export function DragonScene({ progress }: { progress: { current: number } }) {
   return (

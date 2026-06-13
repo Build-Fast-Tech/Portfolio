@@ -1,12 +1,9 @@
 import { createFileRoute } from "@tanstack/react-router";
-import { useEffect, useRef, useState, lazy, Suspense } from "react";
+import { useEffect, useRef, useState } from "react";
 import { motion } from "framer-motion";
 import gsap from "gsap";
 import { ScrollTrigger } from "gsap/ScrollTrigger";
-
-const DragonScene = lazy(() =>
-  import("@/components/DragonScene").then((m) => ({ default: m.DragonScene }))
-);
+import { DragonScene } from "@/components/DragonScene";
 
 export const Route = createFileRoute("/")({
   head: () => ({
@@ -105,18 +102,14 @@ function Index() {
     <div className="relative">
       {/* Fixed 3D background */}
       <div className="pointer-events-none fixed inset-0 z-10">
-        {mounted && (
-          <Suspense fallback={null}>
-            <DragonScene progress={progressRef} />
-          </Suspense>
-        )}
+        {mounted && <DragonScene progress={progressRef} />}
       </div>
 
       {/* Top nav */}
-      <header className="fixed top-0 left-0 right-0 z-40 px-8 py-6 flex items-center justify-between">
-        <div className="flex items-center gap-3">
+      <header className="fixed top-0 left-0 right-0 z-40 px-4 md:px-8 py-4 md:py-6 flex items-center justify-between gap-3">
+        <div className="flex items-center gap-2 md:gap-3 shrink-0">
           <div className="h-2 w-2 rounded-full bg-crimson animate-pulse" />
-          <span className="font-display text-xl tracking-[0.3em]">FAST/TECH</span>
+          <span className="font-display text-base md:text-xl tracking-[0.15em] md:tracking-[0.3em]">FAST/TECH</span>
         </div>
         <nav className="hidden md:flex items-center gap-10 text-sm uppercase tracking-[0.2em] text-ink/70">
           <a className="hover:text-crimson transition-colors" href="#work">Work</a>
@@ -124,9 +117,14 @@ function Index() {
           <a className="hover:text-crimson transition-colors" href="#process">Process</a>
           <a className="hover:text-crimson transition-colors" href="#contact">Contact</a>
         </nav>
-        <button className="glass px-5 py-2.5 rounded-full text-xs uppercase tracking-[0.2em] font-semibold hover:bg-crimson hover:text-paper transition-all">
+        <a
+          href="https://mail.google.com/mail/?view=cm&fs=1&to=build.fasttech@gmail.com"
+          target="_blank"
+          rel="noopener noreferrer"
+          className="glass shrink-0 whitespace-nowrap px-3 md:px-5 py-2 md:py-2.5 rounded-full text-[10px] md:text-xs tracking-[0.1em] md:tracking-[0.2em] font-semibold hover:bg-crimson hover:text-paper transition-all"
+        >
           Start a project
-        </button>
+        </a>
       </header>
 
       {/* HERO */}
@@ -135,14 +133,14 @@ function Index() {
         className="relative h-screen w-full flex flex-col items-center justify-center overflow-hidden"
       >
         {/* JP vertical marker */}
-        <div className="absolute left-8 top-1/2 -translate-y-1/2 z-20 flex flex-col items-center gap-3 text-ink/50">
+        <div className="hidden md:flex absolute left-8 top-1/2 -translate-y-1/2 z-20 flex-col items-center gap-3 text-ink/50">
           <span className="font-jp text-2xl [writing-mode:vertical-rl]">速い・技術</span>
           <span className="h-16 w-px bg-ink/30" />
           <span className="text-[10px] tracking-[0.4em] uppercase">est. mmxxv</span>
         </div>
 
         {/* Right vertical info */}
-        <div className="absolute right-8 top-1/2 -translate-y-1/2 z-20 flex flex-col items-end gap-3 text-ink/50">
+        <div className="hidden md:flex absolute right-8 top-1/2 -translate-y-1/2 z-20 flex-col items-end gap-3 text-ink/50">
           <span className="text-[10px] tracking-[0.4em] uppercase">[ 001 / dragon ]</span>
           <span className="h-16 w-px bg-ink/30" />
           <span className="font-jp text-2xl [writing-mode:vertical-rl]">龍</span>
@@ -207,18 +205,6 @@ function Index() {
                   We blend real-time WebGL, restrained typography, and ruthless
                   performance budgets.
                 </p>
-                <div className="mt-10 grid grid-cols-3 gap-6 pt-8 border-t border-ink/10">
-                  {[
-                    ["120+", "Brand sites shipped"],
-                    ["18ms", "p75 interaction latency"],
-                    ["7", "Awwwards SOTD"],
-                  ].map(([k, v]) => (
-                    <div key={k}>
-                      <div className="font-display text-4xl text-crimson">{k}</div>
-                      <div className="text-xs uppercase tracking-widest text-ink/60 mt-2">{v}</div>
-                    </div>
-                  ))}
-                </div>
               </div>
             </div>
           </div>
@@ -278,10 +264,6 @@ function Index() {
                   <p className="text-ink/75 group-hover:text-paper/75 transition-colors text-lg leading-relaxed">
                     {s.body}
                   </p>
-                  <div className="mt-10 flex items-center gap-3 text-xs uppercase tracking-[0.3em]">
-                    <span>Read more</span>
-                    <span className="h-px w-10 bg-current transition-all group-hover:w-20" />
-                  </div>
                 </div>
               ))}
             </div>
@@ -300,14 +282,13 @@ function Index() {
 
             <div className="reveal glass-dark rounded-[2rem] p-14 grid md:grid-cols-4 gap-10">
               {[
-                ["Week 1", "Discovery", "Brand audit, technical scoping, mood direction."],
-                ["Week 2-4", "Design", "Visual system, motion language, 3D R&D."],
-                ["Week 5-8", "Build", "Engineering, integration, performance work."],
-                ["Week 9", "Launch", "QA, analytics, ongoing optimisation."],
-              ].map(([w, t, d]) => (
-                <div key={w}>
-                  <div className="text-[10px] uppercase tracking-[0.3em] text-paper/50">{w}</div>
-                  <div className="font-display text-3xl text-paper mt-3">{t}</div>
+                ["Discovery", "Brand audit, technical scoping, mood direction."],
+                ["Design", "Visual system, motion language, 3D R&D."],
+                ["Build", "Engineering, integration, performance work."],
+                ["Launch", "QA, analytics, ongoing optimisation."],
+              ].map(([t, d]) => (
+                <div key={t}>
+                  <div className="font-display text-3xl text-paper">{t}</div>
                   <div className="text-paper/70 mt-3 text-sm leading-relaxed">{d}</div>
                 </div>
               ))}
@@ -324,11 +305,16 @@ function Index() {
               <span className="text-crimson italic font-jp">something</span><br />
               unforgettable.
             </h2>
-            <div className="mt-16 glass rounded-full inline-flex items-center gap-6 p-2 pl-8">
-              <span className="text-sm tracking-widest uppercase">hello@fast.tech</span>
-              <button className="bg-ink text-paper px-8 py-4 rounded-full text-xs uppercase tracking-[0.3em] font-semibold hover:bg-crimson transition-colors">
+            <div className="mt-16 glass rounded-3xl sm:rounded-full flex flex-col sm:inline-flex sm:flex-row items-stretch sm:items-center gap-4 sm:gap-6 p-6 sm:p-2 sm:pl-8 w-full sm:w-auto">
+              <span className="text-sm tracking-widest uppercase">build.fasttech@gmail.com</span>
+              <a
+                href="https://mail.google.com/mail/?view=cm&fs=1&to=build.fasttech@gmail.com"
+                target="_blank"
+                rel="noopener noreferrer"
+                className="bg-ink text-paper px-8 py-4 rounded-full text-xs uppercase tracking-[0.3em] font-semibold hover:bg-crimson transition-colors text-center"
+              >
                 Start a project →
-              </button>
+              </a>
             </div>
           </div>
         </section>
