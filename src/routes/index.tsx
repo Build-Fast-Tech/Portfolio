@@ -41,6 +41,10 @@ const WEB3FORMS_ACCESS_KEY = import.meta.env.VITE_WEB3FORMS_ACCESS_KEY as
 
 const CONTACT_EMAIL = "build.fasttech@gmail.com";
 
+// Shared styling for every contact-form field.
+const FIELD_CLASS =
+  "glass rounded-xl px-5 py-4 text-sm text-ink placeholder:text-ink/40 outline-none focus:ring-2 focus:ring-crimson/60";
+
 /**
  * Full-screen branded loading screen. Holds the site behind it until every
  * asset tracked by THREE's loading manager (the ~20MB dragon GLB + the HDR
@@ -461,7 +465,7 @@ function Index() {
             {/* On-site contact form — sends straight to our inbox */}
             <form
               onSubmit={handleContactSubmit}
-              className="mt-12 sm:mt-16 w-full max-w-xl mx-auto text-left"
+              className="mt-12 sm:mt-16 w-full max-w-2xl mx-auto text-left"
             >
               <div className="grid sm:grid-cols-2 gap-3 sm:gap-4">
                 <input
@@ -469,7 +473,7 @@ function Index() {
                   required
                   autoComplete="name"
                   placeholder="Your name"
-                  className="glass rounded-xl px-5 py-4 text-sm text-ink placeholder:text-ink/40 outline-none focus:ring-2 focus:ring-crimson/60"
+                  className={FIELD_CLASS}
                 />
                 <input
                   name="email"
@@ -477,15 +481,80 @@ function Index() {
                   required
                   autoComplete="email"
                   placeholder="Your email"
-                  className="glass rounded-xl px-5 py-4 text-sm text-ink placeholder:text-ink/40 outline-none focus:ring-2 focus:ring-crimson/60"
+                  className={FIELD_CLASS}
                 />
+                <input
+                  name="phone"
+                  type="tel"
+                  required
+                  autoComplete="tel"
+                  placeholder="Phone number"
+                  className={FIELD_CLASS}
+                />
+                <input
+                  name="company"
+                  autoComplete="organization"
+                  placeholder="Company / brand name"
+                  className={FIELD_CLASS}
+                />
+                <input
+                  name="website"
+                  type="url"
+                  autoComplete="url"
+                  placeholder="Current website (if any)"
+                  className={`${FIELD_CLASS} sm:col-span-2`}
+                />
+                <input
+                  name="company_about"
+                  placeholder="What does your company do?"
+                  className={`${FIELD_CLASS} sm:col-span-2`}
+                />
+                <select
+                  name="project_type"
+                  defaultValue=""
+                  className={`${FIELD_CLASS} cursor-pointer`}
+                >
+                  <option value="" disabled>
+                    What do you need?
+                  </option>
+                  <option>New website</option>
+                  <option>Website redesign</option>
+                  <option>Web app / product</option>
+                  <option>Brand + website</option>
+                  <option>Something else</option>
+                </select>
+                <select
+                  name="wants_3d"
+                  defaultValue=""
+                  className={`${FIELD_CLASS} cursor-pointer`}
+                >
+                  <option value="" disabled>
+                    Want a 3D experience?
+                  </option>
+                  <option>Yes — go cinematic</option>
+                  <option>Maybe / not sure</option>
+                  <option>No, keep it minimal</option>
+                </select>
+                <select
+                  name="timeline"
+                  defaultValue=""
+                  className={`${FIELD_CLASS} cursor-pointer sm:col-span-2`}
+                >
+                  <option value="" disabled>
+                    Ideal timeline
+                  </option>
+                  <option>As soon as possible</option>
+                  <option>1–3 months</option>
+                  <option>3–6 months</option>
+                  <option>Flexible</option>
+                </select>
               </div>
               <textarea
                 name="message"
                 required
                 rows={4}
-                placeholder="Tell us about your project"
-                className="glass rounded-xl px-5 py-4 mt-3 sm:mt-4 w-full text-sm text-ink placeholder:text-ink/40 outline-none focus:ring-2 focus:ring-crimson/60 resize-none"
+                placeholder="Anything else about your project?"
+                className={`${FIELD_CLASS} mt-3 sm:mt-4 w-full resize-none`}
               />
               <div className="mt-4 flex flex-col sm:flex-row items-center justify-between gap-4">
                 <span className="text-xs tracking-widest uppercase text-ink/50">
