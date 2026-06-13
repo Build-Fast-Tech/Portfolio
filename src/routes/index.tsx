@@ -289,17 +289,17 @@ function Index() {
         className="relative h-screen w-full flex flex-col items-center justify-center overflow-hidden"
       >
         {/* JP vertical marker */}
-        <div className="hidden md:flex absolute left-8 top-1/2 -translate-y-1/2 z-20 flex-col items-center gap-3 text-ink/50">
-          <span className="font-jp text-2xl [writing-mode:vertical-rl]">速い・技術</span>
-          <span className="h-16 w-px bg-ink/30" />
-          <span className="text-[10px] tracking-[0.4em] uppercase">est. mmxxv</span>
+        <div className="flex absolute left-2 md:left-8 top-1/2 -translate-y-1/2 z-20 flex-col items-center gap-2 md:gap-3 text-ink/50">
+          <span className="font-jp text-base md:text-2xl [writing-mode:vertical-rl]">速い・技術</span>
+          <span className="h-10 md:h-16 w-px bg-ink/30" />
+          <span className="text-[7px] md:text-[10px] tracking-[0.05em] md:tracking-[0.4em] uppercase">est. mmxxv</span>
         </div>
 
         {/* Right vertical info */}
-        <div className="hidden md:flex absolute right-8 top-1/2 -translate-y-1/2 z-20 flex-col items-end gap-3 text-ink/50">
-          <span className="text-[10px] tracking-[0.4em] uppercase">[ 001 / dragon ]</span>
-          <span className="h-16 w-px bg-ink/30" />
-          <span className="font-jp text-2xl [writing-mode:vertical-rl]">龍</span>
+        <div className="flex absolute right-2 md:right-8 top-1/2 -translate-y-1/2 z-20 flex-col items-end gap-2 md:gap-3 text-ink/50">
+          <span className="text-[7px] md:text-[10px] tracking-[0.05em] md:tracking-[0.4em] uppercase">[ 001 / dragon ]</span>
+          <span className="h-10 md:h-16 w-px bg-ink/30" />
+          <span className="font-jp text-base md:text-2xl [writing-mode:vertical-rl]">龍</span>
         </div>
 
         {/* Massive title BEHIND canvas via z-index trick:
@@ -311,12 +311,12 @@ function Index() {
           className="hero-title absolute inset-0 z-0 flex flex-col items-center justify-center pointer-events-none select-none"
         >
           <div className="overflow-hidden">
-            <div className="hero-line font-display text-[18vw] leading-[0.85] text-ink">
+            <div className="hero-line font-display text-[26vw] md:text-[18vw] leading-[0.85] text-ink">
               FAST
             </div>
           </div>
           <div className="overflow-hidden -mt-[2vw]">
-            <div className="hero-line font-display text-[18vw] leading-[0.85] text-crimson">
+            <div className="hero-line font-display text-[26vw] md:text-[18vw] leading-[0.85] text-crimson">
               TECH
             </div>
           </div>

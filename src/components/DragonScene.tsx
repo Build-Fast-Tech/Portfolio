@@ -21,10 +21,17 @@ const TARGET_LENGTH = 4.0;
 const LAP_SECONDS = 26;
 
 // Widest horizontal reach of the flight loop (|x| of the side points) plus a
-// margin for the dragon's body. Used to shrink the whole system on narrow
-// screens so the dragon never flies off the left/right edges.
+// margin for the dragon's body. Used to keep the dragon on the left/right
+// edges. On narrow screens we additionally compress the loop horizontally
+// (see PATH_X_* below) so the dragon can stay large while still fitting.
 const PATH_RADIUS_X = 2.6;
-const BODY_MARGIN_X = 1.2;
+const BODY_MARGIN_X = 1.4;
+
+// Below this viewport aspect ratio the flight loop starts compressing
+// horizontally; at/above it the loop keeps its full desktop width.
+const PATH_X_FULL_ASPECT = 1.4;
+// Never compress the loop narrower than this fraction of its full width.
+const PATH_X_MIN_SCALE = 0.42;
 
 // Closed flight loop: swings above (+y) and below (−y) the text band,
 // pushed back in z on the high pass so it reads as crossing behind/in front.
@@ -113,13 +120,31 @@ function Dragon({ progress }: { progress: { current: number } }) {
 
   useFrame((state, delta) => {
     const t = state.clock.getElapsedTime();
-    const p = progress.current; // 0..1 scroll
+
+    // Responsive framing (recomputed each frame so it tracks resizes):
+    // on narrow/portrait screens compress the loop horizontally and scale the
+    // whole scene up to the largest size that still fits — so the dragon reads
+    // big on phones yet never leaves the screen. The size does NOT depend on
+    // scroll, so the dragon stays a constant size as the page scrolls.
+    const halfW = state.viewport.width / 2;
+    const pathXScale = THREE.MathUtils.clamp(
+      state.viewport.aspect / PATH_X_FULL_ASPECT,
+      PATH_X_MIN_SCALE,
+      1
+    );
+    const sceneScale = Math.min(
+      1,
+      halfW / (PATH_RADIUS_X * pathXScale + BODY_MARGIN_X)
+    );
 
     const u = (t / LAP_SECONDS) % 1;
     const uAhead = (u + 0.02) % 1;
 
     curve.getPointAt(u, tmpPos);
     curve.getPointAt(uAhead, tmpAhead);
+    // Narrow the loop horizontally on portrait screens.
+    tmpPos.x *= pathXScale;
+    tmpAhead.x *= pathXScale;
 
     if (group.current) {
       group.current.position.copy(tmpPos);
@@ -144,20 +169,9 @@ function Dragon({ progress }: { progress: { current: number } }) {
     }
 
     if (scrollGroup.current) {
-      // Keep the whole flight system inside the frame on any aspect ratio
-      // (especially narrow phones): shrink uniformly so the widest part of
-      // the loop still fits horizontally. Never upscale past 1. viewport
-      // height is fixed by fov/distance, so only the horizontal fit matters.
-      const halfW = state.viewport.width / 2;
-      const fit = Math.min(1, halfW / (PATH_RADIUS_X + BODY_MARGIN_X));
-
-      // Scroll only nudges the dragon back a touch and shrinks it slightly,
-      // so it stays large and fully on-screen the whole way down the page.
-      const pushZ = THREE.MathUtils.lerp(0.5, -0.8, p);
-      const scrollScale = THREE.MathUtils.lerp(1, 0.92, p);
-
-      scrollGroup.current.position.z = pushZ;
-      scrollGroup.current.scale.setScalar(fit * scrollScale);
+      // Constant depth + responsive scale (no scroll dependence).
+      scrollGroup.current.position.z = 0;
+      scrollGroup.current.scale.setScalar(sceneScale);
     }
   });
 

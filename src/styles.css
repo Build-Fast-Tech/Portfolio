@@ -40,7 +40,7 @@
   --radius: 0.5rem;
 
   /* Brand palette */
-  --paper: oklch(0.962 0.018 89);            /* #F5F2EB cream */
+  --paper: oklch(0.966 0.005 95);            /* clean warm white (de-yellowed) */
   --ink: oklch(0.16 0.005 0);                 /* #0A0A0A jet */
   --crimson: oklch(0.55 0.21 28);             /* #D11227 deep crimson */
 
@@ -64,7 +64,7 @@
   --input: oklch(0.16 0.005 0 / 0.15);
   --ring: var(--crimson);
 
-  --gradient-paper: radial-gradient(ellipse at top, oklch(0.98 0.012 89) 0%, var(--paper) 60%, oklch(0.92 0.018 80) 100%);
+  --gradient-paper: radial-gradient(ellipse at top, oklch(0.985 0.004 95) 0%, var(--paper) 55%, oklch(0.935 0.006 95) 100%);
   --shadow-glass: 0 10px 40px -10px oklch(0.16 0.005 0 / 0.18), 0 1px 0 0 oklch(1 0 0 / 0.5) inset;
 }
 
