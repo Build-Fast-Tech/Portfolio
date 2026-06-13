@@ -33,6 +33,12 @@ const PATH_X_FULL_ASPECT = 1.4;
 // Never compress the loop narrower than this fraction of its full width.
 const PATH_X_MIN_SCALE = 0.42;
 
+// Vertical reach of the loop (max |y| of the path) plus a body margin. The
+// camera's visible height is fixed, so this caps the scale on wide screens
+// and keeps the dragon from flying off the top/bottom edges.
+const PATH_RADIUS_Y = 2.0;
+const BODY_MARGIN_Y = 1.55;
+
 // Closed flight loop: swings above (+y) and below (−y) the text band,
 // pushed back in z on the high pass so it reads as crossing behind/in front.
 // Kept inside roughly ±2.4 x so the dragon stays in frame at fov 38, z 7.5.
@@ -130,14 +136,18 @@ function Dragon({ progress }: { progress: { current: number } }) {
     // big on phones yet never leaves the screen. The size does NOT depend on
     // scroll, so the dragon stays a constant size as the page scrolls.
     const halfW = state.viewport.width / 2;
+    const halfH = state.viewport.height / 2;
     const pathXScale = THREE.MathUtils.clamp(
       state.viewport.aspect / PATH_X_FULL_ASPECT,
       PATH_X_MIN_SCALE,
       1
     );
+    // Fit horizontally (narrow phones) AND vertically (wide laptops) so the
+    // whole loop + dragon body stays in frame and clearly visible everywhere.
     const sceneScale = Math.min(
       1,
-      halfW / (PATH_RADIUS_X * pathXScale + BODY_MARGIN_X)
+      halfW / (PATH_RADIUS_X * pathXScale + BODY_MARGIN_X),
+      halfH / (PATH_RADIUS_Y + BODY_MARGIN_Y)
     );
 
     const u = (t / LAP_SECONDS) % 1;
