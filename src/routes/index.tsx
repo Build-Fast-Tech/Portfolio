@@ -1,5 +1,5 @@
 import { createFileRoute } from "@tanstack/react-router";
-import { useEffect, useRef, useState } from "react";
+import { useEffect, useRef, useState, type FormEvent } from "react";
 import { motion } from "framer-motion";
 import gsap from "gsap";
 import { ScrollTrigger } from "gsap/ScrollTrigger";
@@ -31,6 +31,15 @@ export const Route = createFileRoute("/")({
 if (typeof window !== "undefined") {
   gsap.registerPlugin(ScrollTrigger);
 }
+
+// Web3Forms access key — delivers the contact form straight to our inbox
+// without a backend. Read from the environment so no credential is committed;
+// set VITE_WEB3FORMS_ACCESS_KEY in .env locally and in the Vercel project.
+const WEB3FORMS_ACCESS_KEY = import.meta.env.VITE_WEB3FORMS_ACCESS_KEY as
+  | string
+  | undefined;
+
+const CONTACT_EMAIL = "build.fasttech@gmail.com";
 
 /**
  * Full-screen branded loading screen. Holds the site behind it until every
@@ -88,8 +97,6 @@ function Preloader() {
     return () => clearTimeout(t);
   }, [hidden]);
 
-  if (removed) return null;
-
   // Lock scroll while the loader covers the page.
   useEffect(() => {
     if (hidden) return;
@@ -99,6 +106,9 @@ function Preloader() {
       document.body.style.overflow = prev;
     };
   }, [hidden]);
+
+  // Early return must come AFTER every hook above (rules of hooks).
+  if (removed) return null;
 
   return (
     <div
@@ -140,10 +150,44 @@ function Index() {
   const heroRef = useRef<HTMLDivElement>(null);
   const titleRef = useRef<HTMLDivElement>(null);
   const [mounted, setMounted] = useState(false);
+  const [formStatus, setFormStatus] = useState<
+    "idle" | "sending" | "success" | "error"
+  >("idle");
 
   useEffect(() => {
     setMounted(true);
   }, []);
+
+  // Send the contact form straight to our inbox via Web3Forms — no Gmail
+  // compose window, the visitor never leaves the site.
+  const handleContactSubmit = async (e: FormEvent<HTMLFormElement>) => {
+    e.preventDefault();
+    const form = e.currentTarget;
+    if (!WEB3FORMS_ACCESS_KEY) {
+      setFormStatus("error");
+      return;
+    }
+    setFormStatus("sending");
+    const data = new FormData(form);
+    data.append("access_key", WEB3FORMS_ACCESS_KEY);
+    data.append("subject", "New project inquiry — FAST TECH");
+    data.append("from_name", "FAST TECH website");
+    try {
+      const res = await fetch("https://api.web3forms.com/submit", {
+        method: "POST",
+        body: data,
+      });
+      const json = await res.json();
+      if (json.success) {
+        setFormStatus("success");
+        form.reset();
+      } else {
+        setFormStatus("error");
+      }
+    } catch {
+      setFormStatus("error");
+    }
+  };
 
   useEffect(() => {
     if (!mounted) return;
@@ -228,9 +272,7 @@ function Index() {
           <a className="hover:text-crimson transition-colors" href="#contact">Contact</a>
         </nav>
         <a
-          href="https://mail.google.com/mail/?view=cm&fs=1&to=build.fasttech@gmail.com"
-          target="_blank"
-          rel="noopener noreferrer"
+          href="#contact"
           className="glass shrink-0 whitespace-nowrap px-3 md:px-5 py-2 md:py-2.5 rounded-full text-[10px] md:text-xs tracking-[0.1em] md:tracking-[0.2em] font-semibold hover:bg-crimson hover:text-paper transition-all"
         >
           Start a project
@@ -410,22 +452,68 @@ function Index() {
         <section id="contact" className="min-h-screen px-8 md:px-20 py-32 flex items-center">
           <div className="max-w-5xl mx-auto text-center reveal">
             <span className="font-jp text-crimson text-sm tracking-widest">— 連絡 / contact</span>
-            <h2 className="font-display text-6xl md:text-[10rem] leading-[0.85] mt-6">
+            <h2 className="font-display text-5xl sm:text-6xl md:text-[10rem] leading-[0.85] mt-6">
               Let's build<br />
               <span className="text-crimson italic font-jp">something</span><br />
               unforgettable.
             </h2>
-            <div className="mt-16 glass rounded-3xl sm:rounded-full flex flex-col sm:inline-flex sm:flex-row items-stretch sm:items-center gap-4 sm:gap-6 p-6 sm:p-2 sm:pl-8 w-full sm:w-auto">
-              <span className="text-sm tracking-widest uppercase">build.fasttech@gmail.com</span>
-              <a
-                href="https://mail.google.com/mail/?view=cm&fs=1&to=build.fasttech@gmail.com"
-                target="_blank"
-                rel="noopener noreferrer"
-                className="bg-ink text-paper px-8 py-4 rounded-full text-xs uppercase tracking-[0.3em] font-semibold hover:bg-crimson transition-colors text-center"
-              >
-                Start a project →
-              </a>
-            </div>
+
+            {/* On-site contact form — sends straight to our inbox */}
+            <form
+              onSubmit={handleContactSubmit}
+              className="mt-12 sm:mt-16 w-full max-w-xl mx-auto text-left"
+            >
+              <div className="grid sm:grid-cols-2 gap-3 sm:gap-4">
+                <input
+                  name="name"
+                  required
+                  autoComplete="name"
+                  placeholder="Your name"
+                  className="glass rounded-xl px-5 py-4 text-sm text-ink placeholder:text-ink/40 outline-none focus:ring-2 focus:ring-crimson/60"
+                />
+                <input
+                  name="email"
+                  type="email"
+                  required
+                  autoComplete="email"
+                  placeholder="Your email"
+                  className="glass rounded-xl px-5 py-4 text-sm text-ink placeholder:text-ink/40 outline-none focus:ring-2 focus:ring-crimson/60"
+                />
+              </div>
+              <textarea
+                name="message"
+                required
+                rows={4}
+                placeholder="Tell us about your project"
+                className="glass rounded-xl px-5 py-4 mt-3 sm:mt-4 w-full text-sm text-ink placeholder:text-ink/40 outline-none focus:ring-2 focus:ring-crimson/60 resize-none"
+              />
+              <div className="mt-4 flex flex-col sm:flex-row items-center justify-between gap-4">
+                <span className="text-xs tracking-widest uppercase text-ink/50">
+                  {CONTACT_EMAIL}
+                </span>
+                <button
+                  type="submit"
+                  disabled={formStatus === "sending" || formStatus === "success"}
+                  className="w-full sm:w-auto bg-ink text-paper px-8 py-4 rounded-full text-xs uppercase tracking-[0.3em] font-semibold hover:bg-crimson transition-colors text-center disabled:opacity-60"
+                >
+                  {formStatus === "sending"
+                    ? "Sending…"
+                    : formStatus === "success"
+                      ? "Sent ✓"
+                      : "Send message →"}
+                </button>
+              </div>
+              {formStatus === "success" && (
+                <p className="mt-4 text-sm text-crimson">
+                  Thanks — we'll be in touch shortly.
+                </p>
+              )}
+              {formStatus === "error" && (
+                <p className="mt-4 text-sm text-crimson">
+                  Something went wrong. Please email us directly at {CONTACT_EMAIL}.
+                </p>
+              )}
+            </form>
           </div>
         </section>
 

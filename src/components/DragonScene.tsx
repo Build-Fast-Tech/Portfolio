@@ -24,7 +24,7 @@ const LAP_SECONDS = 26;
 // margin for the dragon's body. Used to shrink the whole system on narrow
 // screens so the dragon never flies off the left/right edges.
 const PATH_RADIUS_X = 2.6;
-const BODY_MARGIN_X = 0.9;
+const BODY_MARGIN_X = 1.2;
 
 // Closed flight loop: swings above (+y) and below (−y) the text band,
 // pushed back in z on the high pass so it reads as crossing behind/in front.

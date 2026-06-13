@@ -76,7 +76,7 @@
 @layer base {
   * { border-color: var(--color-border); }
   html, body { background: var(--gradient-paper); color: var(--color-foreground); font-family: var(--font-body); }
-  body { overflow-x: hidden; }
+  html, body { overflow-x: clip; max-width: 100%; }
   ::selection { background: var(--crimson); color: var(--paper); }
 }
 
